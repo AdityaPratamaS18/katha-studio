@@ -1,0 +1,8 @@
+{
+  "name": "katha-studio",
+  "version": "0.1.0",
+  "description": "Make animated mythology and devotional story films for YouTube: script, consistent characters, voices, lip-synced talking shots, captions and the final 1080p film.",
+  "author": { "name": "Aditya Pratap Singh" },
+  "license": "MIT",
+  "keywords": ["youtube", "animation", "mythology", "video", "lip-sync", "elevenlabs", "fal"]
+}

@@ -1,0 +1,43 @@
+{
+  "title": "कृष्ण और सुदामा",
+  "slug": "krishna-sudama",
+  "language": "hi",
+  "style": "Stylised 3D animated film still, Pixar-like Indian devotional animation, warm cinematic lighting, soft volumetric light, rich detail, expressive faces, 16:9, no text, no watermark, no captions.",
+  "characters": {
+    "sudama": {
+      "look": "Sudama: a thin, poor Brahmin man about 40 years old, kind gentle face, short grey-black beard, shaved head with a small tuft (shikha), sandalwood tilak on forehead, wearing a torn and patched faded white dhoti and a thin worn cotton shawl, barefoot, no crown, no jewellery"
+    },
+    "krishna": {
+      "look": "Lord Krishna as Dwarkadhish: an adult man about 30 years old (not a child), tall, adult proportions, mature handsome face, soft blue skin, large loving eyes, black curly hair, golden crown with a peacock feather, yellow silk dhoti (pitambar), rich gold jewellery, pearl necklace, gentle smile, faint golden halo"
+    }
+  },
+  "voices": {
+    "narrator": {"voice_id": "", "name": "pick with: katha.py voices --language hi"},
+    "sudama": {"voice_id": "", "name": "older male, soft and humble"},
+    "krishna": {"voice_id": "", "name": "warm adult male"}
+  },
+  "scenes": [
+    {"id": 1, "speaker": "narrator", "kind": "still",
+     "text": "द्वारका के महल के द्वार पर, एक गरीब ब्राह्मण खड़ा था।",
+     "image": "Wide shot: {sudama} standing small and humble at the huge golden gate of a magnificent golden palace of Dwarka, guards in the background, sea and morning sky, he looks up in awe, holding a tiny cloth bundle of rice."},
+    {"id": 2, "speaker": "sudama", "kind": "talk",
+     "text": "मैं कृष्ण का बचपन का मित्र हूँ। क्या वो मुझे पहचानेंगे?",
+     "image": "Front-facing medium close-up portrait of {sudama} looking at the camera, shy and worried, the golden palace gate softly blurred behind him. Clear frontal face, mouth closed, head and shoulders in frame."},
+    {"id": 3, "speaker": "krishna", "kind": "talk",
+     "text": "सुदामा! मेरे प्यारे मित्र, तुम आ गए!",
+     "image": "Front-facing medium close-up portrait of {krishna} looking at the camera with overjoyed eyes full of happy tears, inside a glowing golden palace hall, soft background blur. Clear frontal face, mouth closed, head and shoulders in frame."},
+    {"id": 4, "speaker": "narrator", "kind": "still",
+     "text": "कृष्ण नंगे पाँव दौड़े, और मित्र को गले लगा लिया।",
+     "image": "{krishna} warmly embracing {sudama} at the palace gate, both with closed eyes and tears of joy, golden light, flower petals falling, palace guards and queens watching in surprise, emotional medium-wide shot."},
+    {"id": 5, "speaker": "sudama", "kind": "talk",
+     "text": "प्रभु, मेरे पास देने को बस यह मुट्ठी भर चावल है।",
+     "image": "Front-facing medium close-up portrait of {sudama} looking at the camera, embarrassed and humble, holding up the tiny open cloth bundle of plain rice near his chest, warm palace light. Clear frontal face, mouth closed."},
+    {"id": 6, "speaker": "krishna", "kind": "talk",
+     "text": "प्रेम से दिया एक दाना भी, मेरे लिए पूरे संसार से बड़ा है।",
+     "image": "Front-facing medium close-up portrait of {krishna} looking at the camera with deep love, holding a few grains of rice in his open palm, soft golden halo, palace hall softly blurred. Clear frontal face, mouth closed."}
+  ],
+  "thumbnail": {"scene": 4, "text": "कृष्ण और सुदामा"},
+  "music": null,
+  "captions": true,
+  "settings": {}
+}

@@ -1,0 +1,12 @@
+{
+  "name": "katha-studio",
+  "description": "Animated mythology story films for YouTube, made with Claude Code.",
+  "owner": { "name": "Aditya Pratap Singh" },
+  "plugins": [
+    {
+      "name": "katha-studio",
+      "source": "./",
+      "description": "Script, characters, voices, lip-synced talking shots and the final film for a mythology story channel."
+    }
+  ]
+}
