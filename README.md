@@ -53,7 +53,7 @@ To update later: `/plugin marketplace update katha-studio`. To remove it: `/plug
 ### Option B: copy the skill (no plugin system)
 
 ```bash
-git clone --depth 1 --branch v0.1.0 https://github.com/AdityaPratamaS18/katha-studio.git
+git -c advice.detachedHead=false clone --depth 1 --branch v0.1.0 https://github.com/AdityaPratamaS18/katha-studio.git
 ```
 
 ```bash
