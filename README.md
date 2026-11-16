@@ -22,42 +22,55 @@ Plan 30% more for shots that you make again. The voice uses your ElevenLabs plan
 
 ## What you need
 
-- [Claude Code](https://claude.com/claude-code)
-- Python 3.9 or newer (no pip packages)
-- ffmpeg (`brew install ffmpeg` on macOS, `sudo apt install ffmpeg` on Linux)
-- Google Chrome, Chromium, Edge or Brave (for the captions)
-- A [fal](https://fal.ai) account with credit (pictures and talking shots)
-- An [ElevenLabs](https://elevenlabs.io) account (voices). The free plan does not allow commercial use.
+| Item | Why | Get it |
+|---|---|---|
+| [Claude Code](https://claude.com/claude-code) | Runs the skill | claude.com/claude-code |
+| Python 3.9 or newer | Runs `katha.py` (standard library only, no pip) | macOS and Linux have it; check with `python3 --version` |
+| ffmpeg | Builds the film | `brew install ffmpeg` (macOS) or `sudo apt install ffmpeg` (Linux) |
+| Google Chrome, Chromium, Edge or Brave | Draws the captions and the title | Any recent version |
+| [fal](https://fal.ai) account with credit | Pictures and talking shots | fal.ai/dashboard/keys |
+| [ElevenLabs](https://elevenlabs.io) account | Voices | elevenlabs.io/app/settings/api-keys. The free plan does not allow commercial use. |
 
-macOS is tested (Intel and Apple Silicon). Linux should work. On Windows, use WSL.
-
-The build runs on your computer. A 20 minute film takes about 40 minutes to build.
+macOS is tested (Intel and Apple Silicon), and CI runs on Ubuntu and macOS. On Windows, use WSL.
 
 ## Install
 
-In Claude Code:
+### Option A: plugin (recommended, gets updates)
 
-```
-/plugin marketplace add <your-github-user>/katha-studio
-/plugin install katha-studio@katha-studio
-```
+1. Open Claude Code.
+2. Add the marketplace:
+   ```
+   /plugin marketplace add AdityaPratamaS18/katha-studio
+   ```
+3. Install the plugin:
+   ```
+   /plugin install katha-studio@katha-studio
+   ```
+4. Restart Claude Code. The skill is now `/katha-studio:katha-studio`.
 
-Or copy the skill by hand:
+To update later: `/plugin marketplace update katha-studio`. To remove it: `/plugin uninstall katha-studio@katha-studio`.
+
+### Option B: copy the skill (no plugin system)
 
 ```bash
-git clone https://github.com/<your-github-user>/katha-studio
+git clone --depth 1 --branch v0.1.0 https://github.com/AdityaPratamaS18/katha-studio.git
+```
+
+```bash
 mkdir -p ~/.claude/skills && cp -R katha-studio/skills/katha-studio ~/.claude/skills/
 ```
 
-Then start Claude Code in an empty folder and type:
+The skill is now `/katha-studio`. To update, clone the new version tag and copy it again.
 
-```
-/katha-studio setup
-```
+## First run: setup
 
-Claude checks your computer, tells you what to install, and asks you to save your 2 API keys
-with `katha.py setup` in your own terminal. Your keys stay on your computer
-(`~/.config/katha-studio/config.json`, readable only by you). Claude never sees them.
+1. Make an empty folder for your films and start Claude Code in it.
+2. Type `/katha-studio setup` (or `/katha-studio:katha-studio setup` with option A).
+3. Claude runs `katha.py doctor` and tells you what to install. Install each item, one at a time.
+4. Claude then asks you to run `katha.py setup` in your own terminal. It asks for your 2 keys with hidden input and saves them in `~/.config/katha-studio/config.json` (only your user can read it).
+5. Claude runs `doctor` again. When it prints `READY`, you can make a film.
+
+Never paste an API key into the Claude chat. See [SECURITY.md](SECURITY.md) for what is sent where.
 
 ## Make a film
 
@@ -95,6 +108,12 @@ Everything that costs money shows its price first and runs only after you say ye
 - The old stories are free to tell. The scripts, characters and thumbnails of other channels are not. Do not copy them.
 - Treat the stories with respect. Many viewers watch them as devotion.
 
+## Help
+
+- Faults: open an issue with the output of `katha.py doctor` (remove every key first).
+- Security problems: report them in private, see [SECURITY.md](SECURITY.md).
+- Changes: see [CHANGELOG.md](CHANGELOG.md). Contributions: see [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Licence
 
-MIT. See `LICENSE`.
+MIT. See [LICENSE](LICENSE).

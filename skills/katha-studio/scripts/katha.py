@@ -46,6 +46,8 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+__version__ = "0.1.0"
+
 HERE = Path(__file__).resolve().parent
 TEMPLATES = HERE.parent / "templates"
 CONFIG_DIR = Path(os.environ.get("KATHA_CONFIG_DIR", Path.home() / ".config" / "katha-studio"))
@@ -105,12 +107,26 @@ def say(msg=""):
 
 def load_config():
     cfg = {}
+    if CONFIG.exists() and os.name == "posix" and CONFIG.stat().st_mode & 0o077:
+        print(f"WARNING: {CONFIG} can be read by other users. Fix it with: chmod 600 \"{CONFIG}\"", file=sys.stderr)
     if CONFIG.exists():
         try:
             cfg = json.loads(CONFIG.read_text())
         except json.JSONDecodeError:
             die(f"{CONFIG} is not valid JSON")
     return cfg
+
+
+def write_private(path, text):
+    """Write a file that only this user can read. The mode is set before the key is written."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if os.name == "posix":
+        os.chmod(path.parent, 0o700)
+    tmp = path.with_name(path.name + ".tmp")
+    fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w") as f:
+        f.write(text)
+    os.replace(tmp, path)
 
 
 def secret(name):
@@ -232,6 +248,8 @@ def media_url(result):
 
 
 def download(url, out):
+    if not str(url).startswith("https://"):
+        die(f"refused a non-https download: {str(url)[:80]}")
     out = Path(out)
     out.parent.mkdir(parents=True, exist_ok=True)
     tmp = out.with_suffix(out.suffix + ".part")
@@ -310,6 +328,8 @@ def render_html(html_path, png_path, width=W, height=H, timeout=60):
            "--no-default-browser-check", "--disable-extensions", "--mute-audio",
            f"--user-data-dir={profile}", "--default-background-color=00000000",
            f"--window-size={width},{height}", f"--screenshot={png_path}", Path(html_path).resolve().as_uri()]
+    if os.name == "posix" and hasattr(os, "geteuid") and os.geteuid() == 0:
+        cmd.insert(1, "--no-sandbox")   # Chrome refuses to run as root with its sandbox (Docker, some CI)
     if apple_silicon():
         # An Intel Python (Anaconda, old installers) runs under Rosetta, and its children start as Intel too.
         # Headless Chrome under Rosetta hangs, so ask for the native arm64 slice.
@@ -366,6 +386,14 @@ def esc(t):
 
 
 # ------------------------------------------------------------------ film.json
+
+def inside(d, rel, what):
+    """A path from film.json, resolved inside the film folder. Refuses ../ escapes and absolute paths."""
+    p = (Path(d) / str(rel)).resolve()
+    if Path(d).resolve() not in p.parents:
+        die(f"{what} '{rel}' must be a file inside the film folder")
+    return p
+
 
 def film_dir(arg):
     d = Path(arg).expanduser().resolve()
@@ -540,9 +568,7 @@ def cmd_setup(a):
     if cur != "USD":
         rate = float(input(f"How many {cur} is 1 US$? ").strip() or "1")
     cfg["currency"] = {"code": cur, "per_usd": rate}
-    CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-    CONFIG.write_text(json.dumps(cfg, indent=2))
-    os.chmod(CONFIG, 0o600)
+    write_private(CONFIG, json.dumps(cfg, indent=2))
     say(f"\nSaved. Now run: python3 {Path(__file__).resolve()} doctor")
 
 
@@ -554,6 +580,7 @@ def cmd_new(a):
         die(f"{d}/film.json exists already")
     d.mkdir(parents=True, exist_ok=True)
     film = json.loads((TEMPLATES / "film.example.json").read_text())
+    film["slug"] = re.sub(r"[^a-z0-9]+", "-", d.name.lower()).strip("-") or "film"
     if a.title:
         film["title"] = a.title
     if a.language:
@@ -671,7 +698,8 @@ def cmd_sheets(a):
                   f"{chars[c]['look']}. Show the same character 3 times side by side: front view facing the camera, "
                   f"three-quarter view, and full body. Same face, age, height, costume and colours in all 3. "
                   f"No text, no labels, no watermark.")
-        return gen_image(s["sheet_model"], prompt, d / "img" / f"char_{c}.png", chars[c].get("refs"), s, d, f"sheet {c}")
+        refs = [inside(d, r, "refs") for r in chars[c].get("refs", [])]
+        return gen_image(s["sheet_model"], prompt, d / "img" / f"char_{c}.png", refs, s, d, f"sheet {c}")
 
     with cf.ThreadPoolExecutor(4) as ex:
         for c, out in zip(ids, ex.map(one, ids)):
@@ -698,7 +726,7 @@ def cmd_images(a):
         return
 
     def one(sc):
-        refs = [d / "img" / f"char_{c}.png" for c in scene_chars(sc)] + [d / r for r in sc.get("refs", [])]
+        refs = [d / "img" / f"char_{c}.png" for c in scene_chars(sc)] + [inside(d, r, "refs") for r in sc.get("refs", [])]
         prompt = image_prompt(film, sc)
         if refs:
             prompt += (" Use the reference images only for the faces, bodies and costumes of the characters; "
@@ -1009,9 +1037,9 @@ def render_captions(d, film, s, look, scenes, jobs=4):
 
 def music_bed(d, film, total, out):
     m = film.get("music")
-    if m and (d / m).exists():
+    if m and inside(d, m, "music").exists():
         vol = film.get("music_volume", 0.12)
-        ff(["-stream_loop", "-1", "-i", d / m, "-t", f"{total:.2f}", "-af",
+        ff(["-stream_loop", "-1", "-i", inside(d, m, "music"), "-t", f"{total:.2f}", "-af",
             f"volume={vol},afade=t=in:d=2,afade=t=out:st={max(0, total - 3):.2f}:d=3,aresample=48000", "-ac", "2", out])
         return out
     if film.get("music") is False:
@@ -1192,6 +1220,7 @@ def cmd_frames(a):
 
 def main(argv=None):
     p = argparse.ArgumentParser(prog="katha", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("--version", action="version", version=f"katha-studio {__version__}")
     sub = p.add_subparsers(dest="cmd", required=True)
     sub.add_parser("doctor").set_defaults(fn=cmd_doctor)
     sub.add_parser("setup").set_defaults(fn=cmd_setup)
